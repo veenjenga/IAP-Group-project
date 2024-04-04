@@ -1,0 +1,13 @@
+python -m venv venv
+source venv/bin/activate 
+source venv\Scripts\activate # windows
+django-admin startproject projectname
+
+django-admin startapp applicants
+python manage.py runserver
+
+
+python manage.py makemigrations #checks for changes in schema
+python manage.py migrate # applied the changes
+
+python manage.py createsuperuser # create a superuser
