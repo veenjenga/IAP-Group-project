@@ -1,0 +1,111 @@
+<!-- login.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .form-login {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        .form-control {
+            margin-bottom: 10px;
+            border-radius: .25rem;
+        }
+        .flash-message {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form class="form-login needs-validation" novalidate>
+            <h1 class="h3 mb-3 font-weight-normal text-center">Please log in</h1>
+            <div id="flash-message" class="flash-message"></div>
+            <input type="text" id="username" class="form-control" placeholder="Username" required autofocus>
+            <div class="invalid-feedback">Username is required.</div>
+            <input type="password" id="password" class="form-control" placeholder="Password" required>
+            <div class="invalid-feedback">Password is required.</div>
+            
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="login()">Log in</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function login() {
+            const form = document.querySelector('.form-login');
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            const data = new URLSearchParams();
+            data.append('username', username);
+            data.append('password', password);
+
+            fetch('/applicants/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: data,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showFlashMessage('danger', data.error);
+                } else {
+                    showFlashMessage('success', 'Login successful.');
+                    if (data.is_admin) {
+                        window.location.href = "{% url 'admin_dashboard' %}"; // Replace 'admin_dashboard' with the URL name of your admin dashboard view
+                    } else {
+                        window.location.href = "{% url 'user_dashboard' %}"; // Replace 'user_dashboard' with the URL name of your user dashboard view
+                    }
+                }
+            })
+            .catch(error => {
+                showFlashMessage('danger', 'An error occurred. Please try again.');
+            });
+        }
+
+        function showFlashMessage(type, message) {
+            const flashMessage = document.getElementById('flash-message');
+            flashMessage.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                        ${message}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>`;
+            setTimeout(() => {
+                $('.alert').alert('close');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
