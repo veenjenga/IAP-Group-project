@@ -36,7 +36,7 @@ The Job Application Tracker is a Django-based web application designed to help u
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/job-application-tracker.git
+   git clone https://github.com/veenjenga/IAP-Group-project
    cd job-application-tracker
    ```
 2. **Create and activate a virtual environment:**
