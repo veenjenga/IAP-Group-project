@@ -3,6 +3,7 @@
 # Group 22 - Contributors
 
 - 1.Richard Karanu Mbuti - SCT212-0062/2019
+- 2.Teresiah Njeri-SCT212-0133/2022
 
 
 # Job Application Tracker
