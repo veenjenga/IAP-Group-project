@@ -23,22 +23,22 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">View Jobs</a>
+                        <a class="nav-link" href="{% url 'apply_jobs' %}">Apply Jobs</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">See Applied Jobs</a>
+                        <a class="nav-link" href="{% url 'user_applications' %}">See Applied Jobs</a>
                     </li>
                     {% if user.is_authenticated %}
                         {% if user.userprofile.is_admin %}
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Post a Job</a>
+                                <a class="nav-link" href="{% url 'create_new_job' %}">Post a Job</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#">Update Jobs</a>
                             </li>
                         {% endif %}
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Log Out</a>
+                            <a class="nav-link" href="{% url 'show_login' %}">Log Out</a>
                         </li>
                     {% endif %}
                 </ul>

@@ -62,12 +62,22 @@
             <p class="lead">Track your job applications easily. Apply to jobs, monitor your applications, and stay updated on your application status.</p>
             <hr class="my-4">
             <p>Sign up now to get started!</p>
-            <a class="btn btn-primary btn-lg" href="{% url 'show_login' %}" role="button">Sign Up</a>
+            <a class="btn btn-primary btn-lg" href="{% url 'show_signup' %}" role="button">Sign Up</a>
         </div>
     </div>
+
+   <!-- Main content -->
+   <div class="container mt-4">
+    {% block content %}
+    {% endblock %}
+</div>
 
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+
+
+

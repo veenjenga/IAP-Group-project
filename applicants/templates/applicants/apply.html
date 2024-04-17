@@ -1,0 +1,184 @@
+{% extends 'applicants/base.html' %}
+
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 40px;
+            background-color: #f5f5f5;
+        }
+        .container, .job-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .form-job, .job-card {
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            margin-bottom: 10px;
+        }
+        .form-control, .form-button {
+            margin-bottom: 10px;
+            border-radius: .25rem;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border: 1px solid #ced4da;
+            border-radius: .25rem;
+            padding: 20px;
+            z-index: 1050;
+            display: none;
+        }
+        .close-button {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .scrollable-container {
+            max-height: 400px;
+            overflow-y: auto;
+            width: 100%;
+            padding: 10px;
+        }
+        .flash-message {
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 500px;
+            transform: translateX(-50%);
+            z-index: 1060; /* higher than the modal */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="search_keyword" class="form-control" placeholder="Enter keyword" autofocus>
+        <button onclick="searchJobs()" class="btn btn-primary">Search</button>
+        <div class="scrollable-container" id="job-listing"></div>
+
+        <div id="application-modal" class="modal">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <form id="application-form" enctype="multipart/form-data">
+                <textarea id="cover_letter" class="form-control" placeholder="Cover Letter" required></textarea>
+                <input type="file" id="resume" class="form-control" required>
+                <button class="btn btn-primary btn-block form-button" type="button" onclick="submitApplication()">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function searchJobs() {
+            const keyword = document.getElementById('search_keyword').value.trim();
+            fetch(`/search_jobs/?keyword=${keyword}`)  // Adjust the URL pattern if needed
+                .then(response => response.json())
+                .then(data => {
+                    displayJobs(data.jobs);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                    showFlashMessage('danger', 'Failed to fetch jobs.');
+                });
+        }
+
+        function displayJobs(jobs) {
+            const container = document.getElementById('job-listing');
+            container.innerHTML = '';
+            jobs.forEach(job => {
+                const card = document.createElement('div');
+                card.className = 'job-card card';
+                card.innerHTML = `<div class="card-body"><h5 class="card-title">${job.title}</h5><p class="card-text">${job.description}</p></div>`;
+                const applyButton = document.createElement('button');
+                applyButton.className = 'btn btn-success';
+                applyButton.textContent = 'Apply';
+                applyButton.onclick = () => showModal(job.id);
+                card.appendChild(applyButton);
+                container.appendChild(card);
+            });
+        }
+
+
+        function showModal(jobId) {
+            const modal = document.getElementById('application-modal');
+            modal.style.display = 'block';
+            modal.setAttribute('data-job-id', jobId);  // Store job ID correctly
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('application-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Allow scrolling again
+            document.getElementById('application-form').reset();
+        }
+
+        function submitApplication() {
+            const coverLetter = document.getElementById('cover_letter').value.trim();
+            const resume = document.getElementById('resume').files[0];
+            const jobId = document.getElementById('application-modal').getAttribute('data-job-id');  // Make sure job_id is stored correctly
+
+            if (!coverLetter || !resume) {
+                showFlashMessage('danger', 'Please fill out the cover letter and attach a resume.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('cover_letter', coverLetter);
+            formData.append('resume', resume);
+            formData.append('job_id', jobId);
+
+            fetch('/submit_application/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => Promise.reject(data));
+                }
+                return response.json();
+            })
+            .then(data => {
+                showFlashMessage('success', data.message);
+                closeModal();
+            })
+            .catch(error => {
+                console.error('Submission error:', error);
+                showFlashMessage('danger', error.error || 'An error occurred when submitting the application.');
+            });
+        }
+
+        function showFlashMessage(type, message) {
+            const flashContainer = document.querySelector('.container');
+            const flashMessage = document.createElement('div');
+            flashMessage.className = `alert alert-${type} alert-dismissible fade show flash-message`;
+            flashMessage.role = 'alert';
+            flashMessage.innerHTML = `${message}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>`;
+            flashContainer.insertBefore(flashMessage, flashContainer.firstChild);
+            setTimeout(() => {
+                $(flashMessage).alert('close');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
+{% endblock %}

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "applicants",
     "bootstrap4",
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+     'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "job_application_tracker.urls"
@@ -127,3 +129,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+from django.core.files.storage import default_storage
+
+
+# Media files (user uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Session settings
+SESSION_COOKIE_AGE = 6800  # 30 minutes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+
+default_app_config = 'applicants.apps.YourAppConfig'
+
+# settings.py
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # for 10 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # for 10 MB
+

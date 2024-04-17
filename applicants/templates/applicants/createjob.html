@@ -1,7 +1,12 @@
-{% extends 'applicants/home.html' %}
+{% extends 'applicants/base.html' %}
 
 
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Job</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -15,7 +20,7 @@
             align-items: center;
             height: 100vh;
         }
-        .form-signup {
+        .form-job {
             background-color: #ffffff;
             border: 1px solid #ced4da;
             border-radius: .25rem;
@@ -31,53 +36,38 @@
             margin-bottom: 15px;
         }
     </style>
-    {% block content %}
+</head>
+{% block content %}
 <body>
     <div class="container">
-        <form class="form-signup needs-validation" novalidate>
-            <h1 class="h3 mb-3 font-weight-normal text-center">Please sign up</h1>
+        <form class="form-job needs-validation" novalidate>
+            <h1 class="h3 mb-3 font-weight-normal text-center">Create Job</h1>
             <div id="flash-message" class="flash-message"></div>
-            <input type="text" id="username" class="form-control" placeholder="Username" required autofocus>
-            <div class="invalid-feedback">Username is required.</div>
-            <input type="email" id="email" class="form-control" placeholder="Email Address" required>
-            <div class="invalid-feedback">Email is required.</div>
-            <input type="password" id="password" class="form-control" placeholder="Password" required>
-            <div class="invalid-feedback">Password is required.</div>
-
-                <!-- Login hyperlink -->
-            <div class="login-link">
-                <a href="{% url 'show_login' %}" class="text-primary">Have an account? Log in Instead</a>
-            </div>
-            
-            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="signup()">Sign up</button>
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <input type="text" id="title" name="title" class="form-control" placeholder="Job Title" required autofocus>
+            <textarea id="description" name="description" class="form-control" placeholder="Job Description" required></textarea>
+            <button class="btn btn-lg btn-primary btn-block" type="button" onclick="createJob()">Create Job</button>
         </form>
     </div>
 
     <!-- Bootstrap JS and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
     <script>
-        function signup() {
-            const form = document.querySelector('.form-signup');
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
-    
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-    
+        function createJob() {
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value; // Fetch CSRF token
+
             const data = new URLSearchParams();
-            data.append('username', username);
-            data.append('email', email);
-            data.append('password', password);
-    
-            fetch('/applicants/signup/', {
+            data.append('title', title);
+            data.append('description', description);
+
+            fetch('{% url "create_job" %}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
                 },
                 body: data,
             })
@@ -86,18 +76,16 @@
                 if (data.error) {
                     showFlashMessage('danger', data.error);
                 } else {
-                    if (data.is_admin) {
-                        window.location.href = "{% url 'admin_dashboard' %}"; // Redirect to admin dashboard
-                    } else {
-                        window.location.href = "{% url 'user_dashboard' %}"; // Redirect to user dashboard
-                    }
+                    showFlashMessage('success', data.message);
+                    document.querySelector('.form-job').reset();
+                    document.querySelector('.form-job').classList.remove('was-validated');
                 }
             })
             .catch(error => {
                 showFlashMessage('danger', 'An error occurred. Please try again.');
             });
         }
-    
+
         function showFlashMessage(type, message) {
             const flashMessage = document.getElementById('flash-message');
             flashMessage.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -111,5 +99,7 @@
             }, 5000);
         }
     </script>
-    {% endblock %}
+</body>
+</html>
 
+{% endblock %}

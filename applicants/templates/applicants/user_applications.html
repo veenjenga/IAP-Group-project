@@ -1,0 +1,79 @@
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f8;
+    }
+    .container {
+        padding-top: 20px;
+    }
+    .card {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: 0.3s;
+        border-radius: 10px; /* Adds rounded corners */
+    }
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    .card-body {
+        padding: 15px;
+    }
+    .card-title {
+        color: #333;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .card-text, .small {
+        color: #555;
+    }
+    .status {
+        font-size: 18px;
+        font-weight: bold;
+        color: #4CAF50; /* Greenish color for positive vibes */
+    }
+    .not-set {
+        color: #FF5722; /* A soft red for alerting */
+    }
+    .small {
+        font-size: 14px;
+        font-style: italic;
+    }
+    .btn-success {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+    }
+    .btn-success:hover {
+        background-color: #45a049;
+    }
+</style>
+
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">My Applications</h2>
+    <div class="row">
+        {% for application in applications %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ application.job.title }}</h5>
+                    <p class="card-text">{{ application.cover_letter }}</p>
+                    <p class="small">Applied on: {{ application.created_at|date:"Y-m-d H:i" }}</p>
+                    {% if application.applicationstatus %}
+                    <p class="status">Status: {{ application.applicationstatus.status }}</p>
+                    {% else %}
+                    <p class="status not-set">Status: Not Set</p>
+                    {% endif %}
+                    <p class="small">Last updated: {{ application.updated_at|date:"Y-m-d H:i" }}</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p>No applications found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
